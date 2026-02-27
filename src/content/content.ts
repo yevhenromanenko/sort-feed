@@ -45,7 +45,6 @@ let lastPostCount = 0;
 let noNewPostsCount = 0;
 let buttonAttempts = 0;
 
-
 function cachePostElements(): void {
   const postElements = document.querySelectorAll('[data-id^="urn:li:activity:"], [data-urn^="urn:li:activity:"]');
 
@@ -60,7 +59,6 @@ function cachePostElements(): void {
       }
     }
   });
-
 }
 
 function getFeedContainer(): Element | null {
@@ -370,8 +368,9 @@ function countPostsInDOM(targetUrns: string[]): { found: Set<string>; missing: s
       const normalizedUrn = `urn:li:activity:${match[1]}`;
       if (targetUrnSet.has(normalizedUrn)) {
         const container = el.closest('[data-id]') || el;
-        const hasContent =
-          container.querySelector('.feed-shared-update-v2, .update-components-actor, .feed-shared-text, .update-components-text');
+        const hasContent = container.querySelector(
+          '.feed-shared-update-v2, .update-components-actor, .feed-shared-text, .update-components-text'
+        );
         if (hasContent) {
           found.add(normalizedUrn);
         }
@@ -399,7 +398,9 @@ async function ensureProfilePostsInDOM(
       window.scrollTo({ top: pos, behavior: 'auto' });
       document.documentElement.scrollTop = pos;
       document.body.scrollTop = pos;
-    } catch (e) { /* ignore */ }
+    } catch (e) {
+      /* ignore */
+    }
   };
 
   const scanAndCollect = () => {
@@ -411,7 +412,8 @@ async function ensureProfilePostsInDOM(
       if (!targetUrnSet.has(normalizedUrn)) return;
       if (collectedElements.has(normalizedUrn)) return;
 
-      const wrapper = el.closest('li') || el.closest('[data-finite-scroll-hotkey-item]') || el.closest('[data-id]') || el;
+      const wrapper =
+        el.closest('li') || el.closest('[data-finite-scroll-hotkey-item]') || el.closest('[data-id]') || el;
       collectedElements.set(normalizedUrn, wrapper);
     });
 
@@ -438,9 +440,18 @@ async function ensureProfilePostsInDOM(
         btn.click();
         return true;
       }
-      if (text.includes('показать') && (text.includes('результат') || text.includes('больше'))) { btn.click(); return true; }
-      if ((text.includes('show') || text.includes('see')) && (text.includes('new') || text.includes('more'))) { btn.click(); return true; }
-      if (text.includes('weitere') || text.includes('mehr')) { btn.click(); return true; }
+      if (text.includes('показать') && (text.includes('результат') || text.includes('больше'))) {
+        btn.click();
+        return true;
+      }
+      if ((text.includes('show') || text.includes('see')) && (text.includes('new') || text.includes('more'))) {
+        btn.click();
+        return true;
+      }
+      if (text.includes('weitere') || text.includes('mehr')) {
+        btn.click();
+        return true;
+      }
     }
     return false;
   };
@@ -586,7 +597,6 @@ async function ensurePostsLoadedInDOM(
       stillNeeded > 0 ? `Looking for ${stillNeeded} more posts...` : 'All posts found!'
     );
 
-
     if (cumulativeFound.size >= needed) {
       break;
     }
@@ -626,7 +636,6 @@ async function reorderFeedPosts(
   }
   isReorderInProgress = true;
 
-
   const postsDataMap = new Map<string, PostData>();
   postsData.forEach((p) => postsDataMap.set(p.activityUrn, p));
 
@@ -646,7 +655,6 @@ async function reorderFeedPosts(
           profileCollected.set(urn, element);
         });
       }
-
     } else {
       const loadResult = await ensurePostsLoadedInDOM(sortedUrns, targetCount);
     }
@@ -685,7 +693,9 @@ async function reorderFeedPosts(
           if (sortedUrnSet.has(normalizedUrn)) {
             postContainers.set(normalizedUrn, child);
           } else {
-            const hasContent = child.querySelector('.feed-shared-update-v2, .update-components-actor, .feed-shared-text');
+            const hasContent = child.querySelector(
+              '.feed-shared-update-v2, .update-components-actor, .feed-shared-text'
+            );
             const isOccludableHint = child.querySelector('.occludable-update-hint');
             const isEmpty = isOccludableHint && !hasContent;
             if (!isEmpty) {
@@ -711,7 +721,6 @@ async function reorderFeedPosts(
         }
       });
     }
-
 
     if (postContainers.size === 0) {
       hideReorderOverlay();
@@ -791,10 +800,13 @@ async function reorderFeedPosts(
     window.scrollTo({ top: 0, behavior: 'auto' });
     await new Promise((resolve) => setTimeout(resolve, 400));
 
-
     showReorderNotification(sortedPlacedCount);
 
-    return { success: true, reorderedCount: sortedPlacedCount, message: `Successfully reordered ${sortedPlacedCount} posts` };
+    return {
+      success: true,
+      reorderedCount: sortedPlacedCount,
+      message: `Successfully reordered ${sortedPlacedCount} posts`,
+    };
   } catch (error) {
     hideReorderOverlay();
     return { success: false, reorderedCount: 0, message: (error as Error).message || 'Unknown error' };
@@ -892,9 +904,7 @@ function parsePostElement(postEl: Element): PostData | null {
       if (!subDesc) return undefined;
 
       const ariaHiddenText =
-        subDesc.querySelector('span[aria-hidden="true"]')?.textContent?.trim() ||
-        subDesc.textContent?.trim() ||
-        '';
+        subDesc.querySelector('span[aria-hidden="true"]')?.textContent?.trim() || subDesc.textContent?.trim() || '';
 
       const visuallyHiddenText = subDesc.querySelector('.visually-hidden')?.textContent?.trim() || '';
       const source = `${ariaHiddenText} ${visuallyHiddenText}`.toLowerCase();
@@ -1131,7 +1141,6 @@ function initializeAfterLoad() {
       return;
     }
 
-
     chrome.runtime.sendMessage({ type: 'GET_COLLECTION_STATE' }, (response) => {
       if (qp_isActive) return;
 
@@ -1177,7 +1186,6 @@ window.addEventListener('message', (event) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-
   if (message.type === 'START_AUTO_SCROLL') {
     popupCollectionActive = true;
     autoSortDone = false;
@@ -1202,7 +1210,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         autoSortDone = true;
         chrome.runtime.sendMessage({ type: 'GET_COLLECTION_STATE' }, (response) => {
           if (response) {
-            autoSortFromContentScript(response.sortType || 'likes', response.requestedCount || 0, response.collectAll || false);
+            autoSortFromContentScript(
+              response.sortType || 'likes',
+              response.requestedCount || 0,
+              response.collectAll || false
+            );
           }
         });
       }
@@ -1237,14 +1249,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       collectProfilePostsFromDOM(targetCount > 0 ? targetCount : 50)
         .then(({ posts: domPosts, elements }) => {
           const apiMap = new Map<string, PostData>();
-          postsData.forEach((p) => { if (p.activityUrn) apiMap.set(p.activityUrn, p); });
+          postsData.forEach((p) => {
+            if (p.activityUrn) apiMap.set(p.activityUrn, p);
+          });
 
           const merged: PostData[] = [];
           domPosts.forEach((domPost, urn) => {
             const apiPost = apiMap.get(urn);
             merged.push({
               activityUrn: urn,
-              authorName: (apiPost?.authorName && apiPost.authorName !== 'Unknown') ? apiPost.authorName : domPost.authorName,
+              authorName:
+                apiPost?.authorName && apiPost.authorName !== 'Unknown' ? apiPost.authorName : domPost.authorName,
               text: apiPost?.text || domPost.text || '',
               numLikes: Math.max(apiPost?.numLikes || 0, domPost.numLikes || 0),
               numComments: Math.max(apiPost?.numComments || 0, domPost.numComments || 0),
@@ -1295,7 +1310,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 function showOverlay(currentCount: number = 0, targetCount: number | 'all' = 0) {
-
   if (overlayElement) {
     return;
   }
@@ -1330,7 +1344,9 @@ function showOverlay(currentCount: number = 0, targetCount: number | 'all' = 0) 
   const countText = targetCount === 'all' ? `${safeCount} Posts` : `${safeCount} / ${targetCount ?? 0} Posts`;
   const subText = targetCount === 'all' ? 'collecting all posts...' : 'collecting data...';
 
-  const stopBtnHtml = targetCount === 'all' ? `
+  const stopBtnHtml =
+    targetCount === 'all'
+      ? `
     <button id="la-overlay-stop-btn" style="
       margin-top: 16px;
       padding: 10px 28px;
@@ -1343,7 +1359,8 @@ function showOverlay(currentCount: number = 0, targetCount: number | 'all' = 0) 
       cursor: pointer;
       box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
     ">Stop & Sort Now</button>
-  ` : '';
+  `
+      : '';
 
   card.innerHTML = `
     <div style="
@@ -1402,7 +1419,6 @@ function showOverlay(currentCount: number = 0, targetCount: number | 'all' = 0) 
       });
     }
   }
-
 }
 
 function updateOverlayText(currentCount: number, targetCount: number | 'all') {
@@ -1444,7 +1460,6 @@ function waitForFeedToLoad(): Promise<void> {
       const pageHeight = document.body.scrollHeight;
       const hasContent = pageHeight > 1500;
 
-
       if ((feedContainer && hasContent) || attempts >= maxAttempts) {
         resolve();
       } else {
@@ -1460,7 +1475,6 @@ async function startAutoScroll() {
   if (isAutoScrolling) {
     return;
   }
-
 
   const state = await new Promise<LinkedInEntity>((resolve) => {
     chrome.runtime.sendMessage({ type: 'GET_COLLECTION_STATE' }, resolve);
@@ -1529,7 +1543,6 @@ function doScroll() {
   const currentScrollHeight = scrollContainer?.scrollHeight || document.body.scrollHeight;
   const currentScrollTop = scrollContainer?.scrollTop || window.scrollY || 0;
 
-
   try {
     if (scrollContainer) {
       scrollContainer.scrollTop = currentScrollHeight;
@@ -1537,8 +1550,7 @@ function doScroll() {
     window.scrollTo({ top: currentScrollHeight, behavior: 'auto' });
     document.documentElement.scrollTop = currentScrollHeight;
     document.body.scrollTop = currentScrollHeight;
-  } catch (e) {
-  }
+  } catch (e) {}
 
   if (currentCollectionMode !== 'lite') {
     setTimeout(() => {
@@ -1611,7 +1623,11 @@ function clickLoadMoreButton(): boolean {
       return true;
     }
 
-    if (text.includes('show') && text.includes('more') && (text.includes('feed') || text.includes('result') || text.includes('update'))) {
+    if (
+      text.includes('show') &&
+      text.includes('more') &&
+      (text.includes('feed') || text.includes('result') || text.includes('update'))
+    ) {
       btn.click();
       return true;
     }
@@ -1630,7 +1646,6 @@ function checkIfComplete() {
 
   chrome.runtime.sendMessage({ type: 'GET_COLLECTION_STATE' }, (response) => {
     if (response) {
-
       if (!response.isCollecting) {
         stopAutoScroll();
         popupCollectionActive = false;
@@ -1686,9 +1701,7 @@ async function collectProfilePostsFromDOM(targetCount: number): Promise<{
   const collectVisible = () => {
     document.querySelectorAll('[data-urn^="urn:li:activity:"], [data-id^="urn:li:activity:"]').forEach((el) => {
       const urn =
-        el.getAttribute('data-urn') ||
-        el.getAttribute('data-id') ||
-        el.closest('[data-id]')?.getAttribute('data-id');
+        el.getAttribute('data-urn') || el.getAttribute('data-id') || el.closest('[data-id]')?.getAttribute('data-id');
       if (!urn || !urn.includes('activity:')) return;
 
       const post = parsePostElement(el);
@@ -1752,8 +1765,7 @@ async function collectProfilePostsFromDOM(targetCount: number): Promise<{
       window.scrollTo({ top: pos, behavior: 'auto' });
       document.documentElement.scrollTop = pos;
       document.body.scrollTop = pos;
-    } catch (e) {
-    }
+    } catch (e) {}
   };
 
   const tryClickLoadMore = (): boolean => {
@@ -1890,12 +1902,10 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
     return;
   }
 
-
   try {
     if (isProfileActivityPage()) {
-      const targetCount = collectAll ? 0 : (requestedCount > 0 ? requestedCount : 0);
+      const targetCount = collectAll ? 0 : requestedCount > 0 ? requestedCount : 0;
       const { posts: domPosts, elements } = await collectProfilePostsFromDOM(targetCount > 0 ? targetCount : 50);
-
 
       const apiResponse = await new Promise<{ posts: LinkedInEntity[] }>((resolve) => {
         chrome.runtime.sendMessage({ type: 'GET_POSTS' }, (res) => resolve(res));
@@ -1913,7 +1923,7 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
         const apiPost = apiPostsMap.get(urn);
         mergedPosts.push({
           activityUrn: urn,
-          authorName: (apiPost?.authorName && apiPost.authorName !== 'Unknown') ? apiPost.authorName : domPost.authorName,
+          authorName: apiPost?.authorName && apiPost.authorName !== 'Unknown' ? apiPost.authorName : domPost.authorName,
           text: apiPost?.text || domPost.text || '',
           timestamp: domPost.timestamp || apiPost?.timestamp,
           numLikes: Math.max(apiPost?.numLikes || 0, domPost.numLikes || 0),
@@ -1922,9 +1932,7 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
         });
       });
 
-      const validPosts = mergedPosts.filter(
-        (p) => p.authorName !== 'Unknown' || p.numLikes > 0 || p.numComments > 0
-      );
+      const validPosts = mergedPosts.filter((p) => p.authorName !== 'Unknown' || p.numLikes > 0 || p.numComments > 0);
 
       if (validPosts.length === 0) {
         return;
@@ -1933,7 +1941,6 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
       const sorted = sortPosts(validPosts, sortType) as unknown as PostData[];
       const trimmed = collectAll ? sorted : sorted.slice(0, targetCount || sorted.length);
       const sortedUrns = trimmed.map((p) => p.activityUrn);
-
 
       const result = await reorderFeedPosts(sortedUrns, trimmed, true, targetCount, elements);
 
@@ -1967,8 +1974,7 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
         numShares: p.numShares,
       }));
 
-      const targetCount = collectAll ? 0 : (requestedCount > 0 ? requestedCount : 0);
-
+      const targetCount = collectAll ? 0 : requestedCount > 0 ? requestedCount : 0;
 
       const result = await reorderFeedPosts(sortedUrns, postsData, true, targetCount);
 
@@ -1983,8 +1989,7 @@ async function autoSortFromContentScript(sortType: string, requestedCount: numbe
 
       chrome.runtime.sendMessage({ type: 'STOP_COLLECTION' });
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 function injectSortControls(): void {
@@ -2021,7 +2026,12 @@ function injectSortControls(): void {
 
     if (!anchorElement) {
       const sortDropdown = document.querySelector('.mb2.artdeco-dropdown');
-      if (sortDropdown && (sortDropdown.textContent?.includes('Sort by') || sortDropdown.textContent?.includes('Сортировать') || sortDropdown.querySelector('hr.feed-index-sort-border'))) {
+      if (
+        sortDropdown &&
+        (sortDropdown.textContent?.includes('Sort by') ||
+          sortDropdown.textContent?.includes('Сортировать') ||
+          sortDropdown.querySelector('hr.feed-index-sort-border'))
+      ) {
         anchorElement = sortDropdown;
       }
     }
@@ -2031,7 +2041,6 @@ function injectSortControls(): void {
     setTimeout(injectSortControls, 2000);
     return;
   }
-
 
   chrome.storage.local.get(['userPlan'], (result) => {
     qp_userPlan = result.userPlan || 'free';
@@ -2055,14 +2064,16 @@ function renderQuickPanel(feedToggleWrapper: Element): void {
       return `<button class="la-count-btn${isActive}${isLocked ? ' locked' : ''}${widthClass}" data-count="${value}">${label}${lockedLabel}</button>`;
     })
     .join('');
-  const datePresetOptionsHtml = ([
-    ['week', 'Posts from 1 Week Back'],
-    ['month1', 'Posts from 1 Month Back'],
-    ['month3', 'Posts from 3 Months Back'],
-    ['month6', 'Posts from 6 Months Back'],
-    ['year1', 'Posts from 1 Year Back'],
-    ['all', 'All Posts'],
-  ] as Array<[QPDatePreset, string]>)
+  const datePresetOptionsHtml = (
+    [
+      ['week', 'Posts from 1 Week Back'],
+      ['month1', 'Posts from 1 Month Back'],
+      ['month3', 'Posts from 3 Months Back'],
+      ['month6', 'Posts from 6 Months Back'],
+      ['year1', 'Posts from 1 Year Back'],
+      ['all', 'All Posts'],
+    ] as Array<[QPDatePreset, string]>
+  )
     .map(([value, label]) => {
       const locked = isFree && value !== 'week';
       return `<button type="button" class="la-date-option${value === 'week' ? ' active' : ''}${locked ? ' locked' : ''}" data-value="${value}" ${locked ? 'data-locked="1"' : ''}>${label}${locked ? ' 🔒' : ''}</button>`;
@@ -3041,7 +3052,6 @@ function renderQuickPanel(feedToggleWrapper: Element): void {
   feedToggleWrapper.parentNode?.insertBefore(sortControls, feedToggleWrapper.nextSibling);
 
   setupSortControlsListeners();
-
 }
 
 let qp_selectedCount: number | 'all' = 25;
@@ -3355,7 +3365,6 @@ function qp_start(
 ): void {
   if (qp_isActive || qp_isScrolling) return;
 
-
   qp_isActive = true;
   qp_sortType = sortType;
   qp_sortMode = sortMode;
@@ -3417,14 +3426,12 @@ function qp_doScroll(): void {
   const scrollStep = isProfile ? 800 : currentScrollHeight;
   const nextScroll = isProfile ? Math.min(currentScroll + scrollStep, currentScrollHeight) : currentScrollHeight;
 
-
   try {
     if (scrollContainer) scrollContainer.scrollTop = nextScroll;
     window.scrollTo({ top: nextScroll, behavior: 'auto' });
     document.documentElement.scrollTop = nextScroll;
     document.body.scrollTop = nextScroll;
-  } catch (e) {
-  }
+  } catch (e) {}
 
   setTimeout(() => {
     qp_collectFromDOM();
@@ -3546,15 +3553,15 @@ function qp_collectFromDOM(): void {
     const post = parsePostElement(postEl);
     if (post && post.activityUrn) {
       const existing = qp_posts.get(post.activityUrn);
-        if (
-          !existing ||
-          existing.authorName === 'Unknown' ||
-          (existing.numLikes === 0 && existing.numComments === 0 && post.numLikes > 0) ||
-          (existing.text === '' && post.text !== '') ||
-          (!existing.timestamp && !!post.timestamp)
-        ) {
-          qp_posts.set(post.activityUrn, post);
-        }
+      if (
+        !existing ||
+        existing.authorName === 'Unknown' ||
+        (existing.numLikes === 0 && existing.numComments === 0 && post.numLikes > 0) ||
+        (existing.text === '' && post.text !== '') ||
+        (!existing.timestamp && !!post.timestamp)
+      ) {
+        qp_posts.set(post.activityUrn, post);
+      }
     }
   });
 
@@ -4034,7 +4041,12 @@ function initInlineControls(): void {
       }
       if (!feedToggle) {
         const sortDropdown = document.querySelector('.mb2.artdeco-dropdown');
-        if (sortDropdown && (sortDropdown.textContent?.includes('Sort by') || sortDropdown.textContent?.includes('Сортировать') || sortDropdown.querySelector('hr.feed-index-sort-border'))) {
+        if (
+          sortDropdown &&
+          (sortDropdown.textContent?.includes('Sort by') ||
+            sortDropdown.textContent?.includes('Сортировать') ||
+            sortDropdown.querySelector('hr.feed-index-sort-border'))
+        ) {
           feedToggle = sortDropdown;
         }
       }

@@ -68,7 +68,17 @@ export function initQuickPanelDateControls(options: InitDateControlsOptions): Qu
   const fromInput = root.querySelector('#la-date-from') as HTMLInputElement | null;
   const toInput = root.querySelector('#la-date-to') as HTMLInputElement | null;
 
-  if (!presetTrigger || !presetLabel || !presetMenu || !fromTrigger || !toTrigger || !fromText || !toText || !fromInput || !toInput) {
+  if (
+    !presetTrigger ||
+    !presetLabel ||
+    !presetMenu ||
+    !fromTrigger ||
+    !toTrigger ||
+    !fromText ||
+    !toText ||
+    !fromInput ||
+    !toInput
+  ) {
     return null;
   }
 

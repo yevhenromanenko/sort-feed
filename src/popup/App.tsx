@@ -212,23 +212,27 @@ const App: React.FC = () => {
         numShares: p.numShares,
       }));
 
-      const targetCount = postCount === 'all' ? 0 : (typeof postCount === 'number' ? postCount : 0);
+      const targetCount = postCount === 'all' ? 0 : typeof postCount === 'number' ? postCount : 0;
 
       const trimmedData = postCount === 'all' ? postsData : postsData.slice(0, targetCount);
       setSortedPosts(trimmedData);
 
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
-          chrome.tabs.sendMessage(tabs[0].id, { type: 'REORDER_FEED', sortedUrns, postsData, targetCount }, (result) => {
-            if (result?.success) {
-              setPhase('done');
-              setSortedCount(result.reorderedCount);
-              saveExportData(trimmedData, result.reorderedCount, selectedFilter);
-            } else {
-              setPhase('error');
-              setErrorMessage(result?.message || 'Failed to reorder feed');
+          chrome.tabs.sendMessage(
+            tabs[0].id,
+            { type: 'REORDER_FEED', sortedUrns, postsData, targetCount },
+            (result) => {
+              if (result?.success) {
+                setPhase('done');
+                setSortedCount(result.reorderedCount);
+                saveExportData(trimmedData, result.reorderedCount, selectedFilter);
+              } else {
+                setPhase('error');
+                setErrorMessage(result?.message || 'Failed to reorder feed');
+              }
             }
-          });
+          );
         } else {
           setPhase('error');
           setErrorMessage('LinkedIn tab not found');

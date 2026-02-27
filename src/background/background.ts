@@ -1,7 +1,6 @@
 import type { LinkedInAPIResponse, LinkedInEntity, LinkedInPost, PageType, CollectionMode } from 'types/linkedin';
 import { parseLinkedInResponse } from 'utils/parser';
 
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'LINKEDIN_FEED_DATA') {
     handleFeedData(message.data as LinkedInAPIResponse, message.feedType);
@@ -106,8 +105,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         collectionMode: 'precision',
       };
       const isAll = state.collectAll === true;
-      const displayCount = state.requestedCount > 0 ? state.requestedCount : (state.targetCount > 0 ? state.targetCount : 0);
-
+      const displayCount =
+        state.requestedCount > 0 ? state.requestedCount : state.targetCount > 0 ? state.targetCount : 0;
 
       sendResponse({
         isCollecting: state.isCollecting,
@@ -143,7 +142,6 @@ async function handleFeedData(response: LinkedInAPIResponse, feedType?: 'main' |
 
     const elements = mainFeedElements.length > 0 ? mainFeedElements : profileFeedElements;
     const included = response.included || [];
-
 
     const parsedPosts = parseLinkedInResponse(response, feedType);
 
@@ -193,7 +191,6 @@ async function handleFeedData(response: LinkedInAPIResponse, feedType?: 'main' |
         collectionState: { ...collectionState, isCollecting: false },
       });
 
-
       if (collectionState.tabId) {
         chrome.tabs
           .sendMessage(collectionState.tabId, {
@@ -202,8 +199,7 @@ async function handleFeedData(response: LinkedInAPIResponse, feedType?: 'main' |
           .catch(() => {});
       }
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 async function syncDOMMetrics(
@@ -254,8 +250,7 @@ async function syncDOMMetrics(
       existingData.lastUpdate = Date.now();
       await chrome.storage.local.set({ linkedinPosts: existingData });
     }
-  } catch (error) {
-  }
+  } catch (error) {}
 }
 
 async function handleDOMPosts(posts: LinkedInPost[]) {
@@ -263,7 +258,6 @@ async function handleDOMPosts(posts: LinkedInPost[]) {
     if (!posts || posts.length === 0) {
       return;
     }
-
 
     const result = await chrome.storage.local.get(['linkedinPosts', 'collectionState']);
     const existingData = result.linkedinPosts || { posts: [], lastUpdate: 0 };
@@ -296,7 +290,5 @@ async function handleDOMPosts(posts: LinkedInPost[]) {
     existingData.lastUpdate = Date.now();
 
     await chrome.storage.local.set({ linkedinPosts: existingData });
-
-  } catch (error) {
-  }
+  } catch (error) {}
 }
